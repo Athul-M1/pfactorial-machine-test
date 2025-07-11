@@ -62,7 +62,7 @@ const LoginPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4">
-      {/* Medical-themed background decorations */}
+      
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute -top-10 -left-10 w-40 h-40 bg-green-200 rounded-full opacity-20 animate-pulse"></div>
         <div className="absolute top-1/4 -right-10 w-32 h-32 bg-emerald-200 rounded-full opacity-20 animate-pulse delay-1000"></div>
@@ -71,7 +71,7 @@ const LoginPage = () => {
       </div>
 
       <div className="relative w-full max-w-md">
-        {/* Hospital-themed login card */}
+        
         <div className="bg-white rounded-2xl shadow-2xl p-8 backdrop-blur-sm border border-green-100/50">
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
@@ -161,10 +161,6 @@ const LoginPage = () => {
               )}
             </button>
           </div>
-
-         
-
-          
           <div className="mt-6 pt-6 border-t border-green-100">
             <p className="text-xs text-center text-green-500 font-medium">
               Secure Healthcare Management System
