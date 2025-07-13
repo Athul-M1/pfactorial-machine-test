@@ -15,11 +15,18 @@
         @apply min-h-screen min-w-full bg-gradient-to-br from-green-50 via-emerald-50 to-teal-50 flex items-center justify-center p-4 ;
     }
     .flex-center {
-        @apply flex justify-center items-center
+        @apply flex justify-center items-center;
+    }
+    .flex-between{
+        @apply flex items-center justify-between;
     }
     .error-text {
         @apply text-red-500 text-sm mt-1;
     }
+    .appointment-class{
+        @apply flex items-center space-x-2;
+    }
+
 }
 
 @layer components{
@@ -30,8 +37,10 @@
         @apply block text-sm text-gray-700 mb-2;
     }
     .icon-class{
-        @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500;
-        
+        @apply absolute left-3 top-1/2 transform -translate-y-1/2 text-green-500;     
+    }
+    .icon-size{
+        @apply h-4 w-4
     }
     .btn {
         @apply w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-medium hover:from-blue-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed;

@@ -6,8 +6,8 @@ const App = () => {
     <div>
      
      <Routes>
-      {/* <Route path="/" element={<LoginPage/>}/> */}
-      <Route path="/" element={<CalendarView/>}/>
+      <Route path="/" element={<LoginPage/>}/>
+      <Route path="/calendar" element={<CalendarView/>}/>
      </Routes>
     
     </div>

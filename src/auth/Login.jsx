@@ -51,7 +51,7 @@ const LoginPage = () => {
       // Mock credentials check
       setTimeout(() => {
         if (email === 'staff@clinic.com' && password === '123456') {
-         navigate('/dashboard')
+         navigate('/calendar')
         } else {
           setLoginError('Invalid email or password');
         }
