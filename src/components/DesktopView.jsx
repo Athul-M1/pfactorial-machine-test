@@ -1,46 +1,32 @@
-import { Calendar as CalendarIcon, Clock, Edit3, MapPin, Plus, Trash2, User } from "lucide-react";
-import Calendar from "react-calendar";
+import { useState } from 'react';
+import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import './Calendar.css';
-import { useState } from "react";
+import { Calendar as CalendarIcon, Clock, Edit3, MapPin, Plus, Trash2, User, Filter } from 'lucide-react';
+import { sampleDoctors } from '../data';
 
-const DesktopView = () => {
-  const today = new Date();
-  const [selectedDate, setSelectedDate] = useState(today);
+const DesktopView = ({
+  selectedDate,
+  setSelectedDate,
+  getAppointmentsForDate,
+  getPatientById,
+  getDoctorById,
+  openForm,
+  deleteAppointment,
+}) => {
+  const [doctorFilter, setDoctorFilter] = useState('');
+  const appointments = getAppointmentsForDate(selectedDate);
 
-  // Sample events for demonstration
-  const sampleEvents = [
-    {
-      id: 1,
-      title: "Patient Consultation",
-      time: "09:00 AM",
-      location: "Room 101",
-      attendees: ["Dr. Smith", "Patient A"],
-      color: "bg-blue-500"
-    },
-    {
-      id: 2,
-      title: "Medical Review",
-      time: "11:30 AM",
-      location: "Room 203",
-      attendees: ["Dr. Johnson", "Nurse Mary"],
-      color: "bg-green-500"
-    },
-    {
-      id: 3,
-      title: "Team Meeting",
-      time: "02:00 PM",
-      location: "Conference Room",
-      attendees: ["Dr. Smith", "Dr. Johnson", "Nurse Mary"],
-      color: "bg-purple-500"
-    }
-  ];
+  // Filter appointments by doctor if filter is active
+  const filteredAppointments = doctorFilter
+    ? appointments.filter(app => app.doctorId === doctorFilter)
+    : appointments;
 
   return (
-    <div className="flex flex-col items-center justify-start p-6 min-h-screen ">
+    <div className="flex flex-col items-center justify-start p-6 min-h-screen">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white w-full max-w-6xl rounded-xl shadow-lg p-6 mb-6">
-        <div className="flex-between">
+      <div className="w-full max-w-6xl mb-6 header-bg">
+        <div className="flex justify-between items-center">
           <div className="flex items-center space-x-3">
             <CalendarIcon className="w-8 h-8" />
             <h1 className="text-2xl font-bold">Clinic Calendar</h1>
@@ -48,7 +34,7 @@ const DesktopView = () => {
           <div className="text-right">
             <div className="text-sm opacity-80">Today</div>
             <div className="text-lg font-semibold">
-              {today.toLocaleDateString('en-US', {
+              {new Date().toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'short',
                 day: 'numeric',
@@ -58,82 +44,151 @@ const DesktopView = () => {
         </div>
       </div>
 
-      {/* Main Content: Calendar and Events Side by Side */}
+      {/* Main Content */}
       <div className="w-full max-w-6xl bg-white rounded-xl shadow-md p-6 flex gap-6">
-        {/* Calendar */}
+        {/* Calendar Section */}
         <div className="flex-[2]">
           <Calendar
             onChange={setSelectedDate}
             value={selectedDate}
             className="custom-calendar w-full"
+            tileContent={({ date, view }) => {
+              if (view === 'month') {
+                const sameDayAppointments = getAppointmentsForDate(date);
+                const filtered = doctorFilter 
+                  ? sameDayAppointments.filter(app => app.doctorId === doctorFilter)
+                  : sameDayAppointments;
+                
+                if (filtered.length > 0) {
+                  const patients = filtered
+                    .map((app) => {
+                      const patient = getPatientById(app.patientId);
+                      return patient?.name;
+                    })
+                    .filter(Boolean)
+                    .slice(0, 2);
+
+                  return (
+                    <div className="text-[15px] text-gray-500 mt-1">
+                      {patients.join(', ')}
+                      {filtered.length > 2 && '...'}
+                    </div>
+                  );
+                }
+              }
+              return null;
+            }}
           />
         </div>
 
-        {/* Events List */}
+        {/* Appointments Section */}
         <div className="flex-[1] border-l border-gray-200 pl-6 overflow-y-auto">
-          {/* Sidebar Header */}
-          <div className="flex-between mb-6">
-            <h3 className="text-lg font-semibold text-gray-800">
-              Events for {selectedDate.toLocaleDateString('en-US', {
+          <div className="flex justify-between items-center mb-4 header-bg">
+            <h3 className="text-lg font-semibold text-white">
+              Appointments for {selectedDate.toLocaleDateString('en-US', {
                 weekday: 'long',
                 month: 'long',
-                day: 'numeric'
+                day: 'numeric',
               })}
             </h3>
-            <button
-              onClick={() => {}}
-              className="p-2 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors"
-            >
-              <Plus className="icon-size" />
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => openForm(selectedDate)}
+                className="add-btn"
+              >
+                <Plus className="icon-size-2" />
+              </button>
+            </div>
           </div>
 
-          {/* Events List */}
+          {/* Doctor Filter */}
+          <div className="mb-4">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                <Filter className="icon-size text-gray-400" />
+              </div>
+              <select
+                value={doctorFilter}
+                onChange={(e) => setDoctorFilter(e.target.value)}
+                className="form-input outline-none border-2  border-green-500"
+              >
+                <option value="">All Doctors</option>
+                {sampleDoctors?.map((doctor) => (
+                  <option key={doctor.id} value={doctor.id}>
+                    {doctor.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
           <div className="space-y-3">
-            {sampleEvents.length > 0 ? (
-              sampleEvents.map(event => (
-                <div key={event.id} className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="appointment-class mb-2">
-                        <div className={`w-3 h-3 rounded-full ${event.color}`}></div>
-                        <h4 className="font-semibold text-gray-800">{event.title}</h4>
+            {filteredAppointments.length > 0 ? (
+              filteredAppointments.map((event) => {
+                const patient = getPatientById(event.patientId);
+                const doctor = getDoctorById(event.doctorId);
+
+                return (
+                  <div
+                    key={event.id}
+                    className="bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex-between">
+                      <div className="flex-1">
+                        <div className="appointment-list mb-2">
+                          <div className="w-3 h-3 bg-green-500 rounded-full" />
+                          <h4 className="font-semibold text-gray-800">Appointment</h4>
+                        </div>
+                        <div className="space-y-1 text-sm text-gray-600">
+                          <div className="appointment-list">
+                            <Clock className="icon-size" />
+                            <span>{event.time}</span>
+                          </div>
+                          <div className="appointment-list">
+                            <User className="icon-size" />
+                            <span>{patient?.name || 'Unknown'}</span>
+                          </div>
+                          <div className="appointment-list">
+                            <User className="icon-size" />
+                            <span className="font-medium text-blue-600">{doctor?.name || 'Unknown'}</span>
+                          </div>
+                          <div className="appointment-list">
+                            <MapPin className="icon-size" />
+                            <span>Clinic Room</span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="space-y-1 text-sm text-gray-600">
-                        <div className="appointment-class">
-                          <Clock className="icon-size" />
-                          <span>{event.time}</span>
-                        </div>
-                        <div className="appointment-class">
-                          <MapPin className="icon-size" />
-                          <span>{event.location}</span>
-                        </div>
-                        <div className="appointment-class">
-                          <User className="icon-size" />
-                          <span>{event.attendees.join(', ')}</span>
-                        </div>
+                      <div className="flex space-x-1">
+                        <button
+                          onClick={() => openForm(selectedDate, event)}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        >
+                          <Edit3 className="icon-size-2 text-gray-500" />
+                        </button>
+                        <button
+                          onClick={() => deleteAppointment(event.id)}
+                          className="p-1 hover:bg-gray-200 rounded transition-colors"
+                        >
+                          <Trash2 className="icon-size-2 text-red-500" />
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex space-x-1">
-                      <button className="p-1 hover:bg-gray-200 rounded transition-colors">
-                        <Edit3 className="icon-size text-gray-500" />
-                      </button>
-                      <button className="p-1 hover:bg-gray-200 rounded transition-colors">
-                        <Trash2 className="icon-size text-red-500" />
-                      </button>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-center py-8 text-gray-500">
                 <CalendarIcon className="w-12 h-12 mx-auto mb-3 opacity-50" />
-                <p>No events scheduled for this day</p>
+                <p>
+                  {doctorFilter 
+                    ? "No appointments for selected doctor"
+                    : "No appointments scheduled"}
+                </p>
                 <button
-                  onClick={() => {}}
+                  onClick={() => openForm(selectedDate)}
                   className="mt-2 text-green-500 hover:text-green-600 text-sm font-medium"
                 >
-                  Add your first event
+                  Add appointment
                 </button>
               </div>
             )}
